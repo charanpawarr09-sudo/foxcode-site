@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foxcode — Think in Code</title>
+  <meta name="description"
+    content="The first coding platform that actually understands how your brain learns and adapts to you. Join the waitlist." />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --orange: #FF6B1A;
+      --orange-dim: #cc5514;
+      --orange-glow: rgba(255, 107, 26, 0.12);
+      --black: #0a0a0a;
+      --card: #111111;
+      --card2: #161616;
+      --border: rgba(255, 255, 255, 0.07);
+      --text: #f0f0f0;
+      --muted: #888;
+      --scroll-y: 0px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* NOISE TEXTURE */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ═══ 6. SCROLL GLOW ═══ */
+    .scroll-glow {
+      position: fixed;
+      left: 50%;
+      top: var(--scroll-y);
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(255, 107, 26, 0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      transition: top 0.3s ease-out;
+      will-change: top;
+    }
+
+    /* ═══ 1. HERO CANVAS PARTICLES ═══ */
+    .particles-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ═══ 5. NEURAL NETWORK SVG ═══ */
+    .neural-svg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px;
+      height: 500px;
+      opacity: 0.06;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .neural-svg circle {
+      fill: var(--orange);
+      animation: neuralPulse 3s ease-in-out infinite;
+    }
+
+    .neural-svg circle:nth-child(even) {
+      animation-delay: -1.5s;
+    }
+
+    .neural-svg circle:nth-child(3n) {
+      animation-delay: -0.8s;
+    }
+
+    .neural-svg line {
+      stroke: var(--orange);
+      stroke-width: 1;
+      opacity: 0.5;
+      animation: lineFlicker 4s ease-in-out infinite;
+    }
+
+    .neural-svg line:nth-child(even) {
+      animation-delay: -2s;
+    }
+
+    .neural-svg line:nth-child(3n) {
+      animation-delay: -1s;
+    }
+
+    @keyframes neuralPulse {
+
+      0%,
+      100% {
+        r: 4;
+        opacity: 0.4;
+      }
+
+      50% {
+        r: 7;
+        opacity: 1;
+      }
+    }
+
+    @keyframes lineFlicker {
+
+      0%,
+      100% {
+        opacity: 0.2;
+      }
+
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 40px;
+      height: 60px;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      text-decoration: none;
+      color: var(--text);
+      transition: opacity 0.2s;
+    }
+
+    .nav-logo:hover {
+      opacity: 0.85;
+    }
+
+    .nav-logo span {
+      color: var(--orange);
+    }
+
+    .nav-logo-icon {
+      width: 70px;
+      height: 70px;
+      flex-shrink: 0;
+      object-fit: contain;
+      margin: -12px -10px -12px -14px;
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(52px, 8vw, 96px);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -2px;
+      margin-bottom: 28px;
+      animation: fadeUp 0.6s 0.1s ease both;
+      position: relative;
+      z-index: 2;
+    }
+
+    h1 em {
+      font-style: normal;
+      color: var(--orange);
+    }
+
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 52px;
+      font-weight: 300;
+      animation: fadeUp 0.6s 0.2s ease both;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.6s 0.3s ease both;
+      position: relative;
+      z-index: 2;
+    }
+
+    .btn-primary {
+      background: var(--orange);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 14px 32px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.25s, transform 0.2s, box-shadow 0.3s;
+      display: inline-block;
+    }
+
+    .btn-primary:hover {
+      background: var(--orange-dim);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 24px rgba(255, 107, 26, 0.35), 0 0 0 1px rgba(255, 107, 26, 0.15);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      padding: 14px 32px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.25s, color 0.25s, transform 0.2s, box-shadow 0.3s;
+      display: inline-block;
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      color: var(--text);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 12px rgba(255, 255, 255, 0.04);
+    }
+
+    /* SCROLL INDICATOR */
+    .scroll-hint {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: fadeIn 1s 1s ease both;
+      z-index: 2;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(255, 107, 26, 0.5), transparent);
+      animation: scrollLine 2s infinite;
+    }
+
+    @keyframes scrollLine {
+      0% {
+        transform: scaleY(0);
+        transform-origin: top;
+      }
+
+      50% {
+        transform: scaleY(1);
+        transform-origin: top;
+      }
+
+      51% {
+        transform: scaleY(1);
+        transform-origin: bottom;
+      }
+
+      100% {
+        transform: scaleY(0);
+        transform-origin: bottom;
+      }
+    }
+
+
+
+    /* SECTION */
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 100px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 17px;
+      max-width: 500px;
+      margin-bottom: 56px;
+      font-weight: 300;
+    }
+
+    /* ═══ 2. BENTO GRID CARDS ═══ */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color 0.3s, transform 0.25s, box-shadow 0.35s;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 107, 26, 0.25);
+      transform: translateY(-2px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .card:first-child {
+      grid-column: span 2;
+    }
+
+    .card-icon {
+      font-size: 28px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .card.orange-border {
+      border-color: rgba(255, 107, 26, 0.3);
+      background: linear-gradient(135deg, var(--card) 0%, rgba(255, 107, 26, 0.03) 100%);
+    }
+
+    .card.orange-border:hover {
+      border-color: rgba(255, 107, 26, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255, 107, 26, 0.06), 0 8px 32px rgba(255, 107, 26, 0.08);
+    }
+
+    /* ═══ DIFF SECTION ═══ */
+    .diff-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .diff-col {
+      background: var(--card);
+      padding: 36px;
+    }
+
+    .diff-col:first-child {
+      border-right: 1px solid var(--border);
+    }
+
+    .diff-col h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .diff-col.bad h4 {
+      color: var(--muted);
+    }
+
+    .diff-col.good h4 {
+      color: var(--orange);
+    }
+
+    .diff-col.good {
+      background: linear-gradient(180deg, var(--card) 0%, rgba(255, 107, 26, 0.02) 100%);
+    }
+
+    /* ═══ 8. STAGGERED DIFF ITEMS ═══ */
+    .diff-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 20px;
+      font-size: 15px;
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .diff-grid.visible .diff-item {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .diff-col.bad .diff-item {
+      transition-delay: 0s;
+    }
+
+    .diff-grid.visible .diff-col.bad .diff-item:nth-child(2) {
+      transition-delay: 0.08s;
+    }
+
+    .diff-grid.visible .diff-col.bad .diff-item:nth-child(3) {
+      transition-delay: 0.16s;
+    }
+
+    .diff-grid.visible .diff-col.bad .diff-item:nth-child(4) {
+      transition-delay: 0.24s;
+    }
+
+    .diff-grid.visible .diff-col.bad .diff-item:nth-child(5) {
+      transition-delay: 0.32s;
+    }
+
+    .diff-grid.visible .diff-col.good .diff-item:nth-child(2) {
+      transition-delay: 0.12s;
+    }
+
+    .diff-grid.visible .diff-col.good .diff-item:nth-child(3) {
+      transition-delay: 0.24s;
+    }
+
+    .diff-grid.visible .diff-col.good .diff-item:nth-child(4) {
+      transition-delay: 0.36s;
+    }
+
+    .diff-grid.visible .diff-col.good .diff-item:nth-child(5) {
+      transition-delay: 0.48s;
+    }
+
+    .diff-col.bad .diff-item {
+      color: var(--muted);
+    }
+
+    .diff-grid.visible .diff-col.bad .diff-item {
+      opacity: 0.5;
+    }
+
+    .diff-col.good .diff-item {
+      color: var(--text);
+    }
+
+    .diff-grid.visible .diff-col.good .diff-item {
+      opacity: 1;
+    }
+
+    .diff-item .icon {
+      font-size: 16px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ═══ 4. TESTIMONIAL ═══ */
+    .testimonial-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 80px 24px;
+    }
+
+    .testimonial-card {
+      border-left: 3px solid var(--orange);
+      padding: 32px 36px;
+      background: var(--card);
+      border-radius: 0 16px 16px 0;
+      position: relative;
+    }
+
+    .testimonial-card::before {
+      content: '"';
+      position: absolute;
+      top: -10px;
+      left: 24px;
+      font-family: 'Syne', sans-serif;
+      font-size: 80px;
+      color: var(--orange);
+      opacity: 0.15;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .testimonial-quote {
+      font-size: 19px;
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.7;
+      font-weight: 300;
+      margin-bottom: 20px;
+    }
+
+    .testimonial-author {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .testimonial-author strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* HOW IT WORKS */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 28px;
+      align-items: flex-start;
+      padding: 36px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child {
+      border-bottom: none;
+    }
+
+    .step-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--orange);
+      letter-spacing: 1px;
+      padding-top: 4px;
+      text-shadow: 0 0 20px rgba(255, 107, 26, 0.25);
+    }
+
+    .step h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    .step p {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 560px;
+    }
+
+    /* ═══ 9. FAQ ACCORDION ═══ */
+    .faq-section {
+      position: relative;
+      z-index: 1;
+      padding: 100px 24px;
+      max-width: 750px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .faq-toggle {
+      display: none;
+    }
+
+    .faq-question {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 0;
+      cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      transition: color 0.2s;
+      user-select: none;
+    }
+
+    .faq-question:hover {
+      color: var(--orange);
+    }
+
+    .faq-chevron {
+      font-size: 18px;
+      transition: transform 0.3s ease;
+      color: var(--muted);
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+      padding: 0 0;
+    }
+
+    .faq-answer-inner {
+      padding-bottom: 22px;
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .faq-toggle:checked~.faq-question .faq-chevron {
+      transform: rotate(180deg);
+    }
+
+    .faq-toggle:checked~.faq-question {
+      color: var(--orange);
+    }
+
+    .faq-toggle:checked~.faq-answer {
+      max-height: 300px;
+      padding: 0 0;
+    }
+
+    /* WAITLIST */
+    .waitlist-wrap {
+      background: var(--card);
+      border: 1px solid rgba(255, 107, 26, 0.2);
+      border-radius: 24px;
+      padding: 64px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.4s;
+    }
+
+    .waitlist-wrap:hover {
+      border-color: rgba(255, 107, 26, 0.35);
+    }
+
+    .waitlist-wrap::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
+      height: 300px;
+      background: radial-gradient(ellipse, rgba(255, 107, 26, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .waitlist-wrap h2 {
+      margin-bottom: 12px;
+    }
+
+    .waitlist-wrap .section-sub {
+      margin: 0 auto 40px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      max-width: 480px;
+      margin: 0 auto 16px;
+      flex-wrap: wrap;
+    }
+
+    .form-row input {
+      flex: 1;
+      min-width: 200px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      padding: 13px 18px;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.3s;
+    }
+
+    .form-row input::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .form-row input:focus {
+      border-color: rgba(255, 107, 26, 0.5);
+      box-shadow: 0 0 0 3px rgba(255, 107, 26, 0.1), 0 0 16px rgba(255, 107, 26, 0.06);
+    }
+
+    .form-note {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.25);
+      margin-top: 14px;
+    }
+
+    /* ═══ 10. ENHANCED FOOTER ═══ */
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 56px 24px 40px;
+      border-top: 1px solid var(--border);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-brand .nav-logo {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .footer-tagline {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 280px;
+      line-height: 1.6;
+    }
+
+    .footer-col h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .footer-col a {
+      display: block;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      padding: 4px 0;
+      transition: color 0.2s;
+    }
+
+    .footer-col a:hover {
+      color: var(--orange);
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 16px;
+      margin-top: 4px;
+    }
+
+    .footer-social a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 16px;
+      text-decoration: none;
+      color: var(--muted);
+      transition: border-color 0.2s, color 0.2s, transform 0.2s;
+      padding: 0;
+    }
+
+    .footer-social a:hover {
+      border-color: rgba(255, 107, 26, 0.4);
+      color: var(--orange);
+      transform: translateY(-1px);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .footer-bottom span {
+      color: var(--orange);
+    }
+
+    /* ═══ 7. FLOATING CTA (MOBILE) ═══ */
+    .floating-cta {
+      position: fixed;
+      bottom: -80px;
+      left: 0;
+      right: 0;
+      z-index: 99;
+      padding: 12px 20px;
+      background: rgba(10, 10, 10, 0.92);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255, 107, 26, 0.2);
+      display: none;
+      justify-content: center;
+      transition: bottom 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: bottom;
+    }
+
+    .floating-cta.show {
+      bottom: 0;
+    }
+
+    .floating-cta .btn-primary {
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+      padding: 13px 24px;
+      font-size: 14px;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      .particles-canvas {
+        display: none;
+      }
+
+      .neural-svg {
+        display: none;
+      }
+
+      .scroll-glow {
+        display: none;
+      }
+    }
+
+    /* ═══ TABLET ═══ */
+    @media (max-width: 768px) {
+      nav {
+        padding: 14px 20px;
+      }
+
+      .nav-logo {
+        font-size: 19px;
+      }
+
+      .nav-badge {
+        font-size: 11px;
+        padding: 4px 12px;
+      }
+
+      .hero {
+        padding: 100px 20px 64px;
+        min-height: 90vh;
+      }
+
+      h1 {
+        letter-spacing: -1.5px;
+        margin-bottom: 22px;
+      }
+
+      .hero-sub {
+        max-width: 440px;
+        margin-bottom: 40px;
+      }
+
+      section {
+        padding: 72px 20px;
+      }
+
+      h2 {
+        margin-bottom: 16px;
+      }
+
+      .section-sub {
+        font-size: 16px;
+        margin-bottom: 40px;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .card:first-child {
+        grid-column: span 2;
+      }
+
+      .diff-grid {
+        grid-template-columns: 1fr;
+        border-radius: 14px;
+      }
+
+      .diff-col:first-child {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .diff-col {
+        padding: 28px;
+      }
+
+      .step {
+        grid-template-columns: 48px 1fr;
+        gap: 20px;
+        padding: 28px 0;
+      }
+
+      .step h3 {
+        font-size: 20px;
+      }
+
+      .waitlist-wrap {
+        padding: 48px 32px;
+        border-radius: 20px;
+      }
+
+      .scroll-hint {
+        bottom: 28px;
+      }
+
+      .floating-cta {
+        display: flex;
+      }
+
+      .testimonial-card {
+        padding: 24px 28px;
+      }
+
+      .testimonial-quote {
+        font-size: 17px;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+      }
+
+      .footer-brand {
+        grid-column: span 2;
+      }
+
+      .neural-svg {
+        width: 500px;
+        height: 350px;
+      }
+
+      .faq-section {
+        padding: 72px 20px;
+      }
+    }
+
+    /* ═══ MOBILE ═══ */
+    @media (max-width: 480px) {
+      nav {
+        padding: 12px 16px;
+      }
+
+      .nav-logo {
+        font-size: 18px;
+        gap: 6px;
+      }
+
+      .nav-badge {
+        font-size: 10px;
+        padding: 4px 10px;
+      }
+
+      .hero {
+        padding: 90px 16px 56px;
+        min-height: 85vh;
+      }
+
+      h1 {
+        font-size: clamp(40px, 12vw, 60px);
+        letter-spacing: -1px;
+        margin-bottom: 20px;
+      }
+
+      .hero-sub {
+        font-size: 15px;
+        max-width: 340px;
+        margin-bottom: 36px;
+        line-height: 1.65;
+      }
+
+      .hero-cta {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 0 8px;
+      }
+
+      .btn-primary,
+      .btn-ghost {
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+        padding: 14px 24px;
+      }
+
+      section {
+        padding: 56px 16px;
+      }
+
+      h2 {
+        font-size: clamp(26px, 6vw, 36px);
+        letter-spacing: -0.5px;
+      }
+
+      .section-label {
+        font-size: 10px;
+        letter-spacing: 2.5px;
+      }
+
+      .section-sub {
+        font-size: 15px;
+        margin-bottom: 32px;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .card:first-child {
+        grid-column: span 1;
+      }
+
+      .card {
+        padding: 22px;
+        border-radius: 14px;
+      }
+
+      .card-icon {
+        font-size: 24px;
+        margin-bottom: 12px;
+      }
+
+      .card h3 {
+        font-size: 16px;
+      }
+
+      .card p {
+        font-size: 13px;
+      }
+
+      .diff-grid {
+        grid-template-columns: 1fr;
+        border-radius: 14px;
+      }
+
+      .diff-col:first-child {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .diff-col {
+        padding: 24px 20px;
+      }
+
+      .diff-col h4 {
+        font-size: 12px;
+        margin-bottom: 20px;
+      }
+
+      .diff-item {
+        font-size: 14px;
+        margin-bottom: 16px;
+        gap: 10px;
+      }
+
+      .step {
+        grid-template-columns: 36px 1fr;
+        gap: 14px;
+        padding: 24px 0;
+      }
+
+      .step h3 {
+        font-size: 18px;
+      }
+
+      .step p {
+        font-size: 14px;
+      }
+
+      .waitlist-wrap {
+        padding: 36px 20px;
+        border-radius: 16px;
+      }
+
+      .waitlist-wrap h2 {
+        font-size: clamp(24px, 6vw, 32px);
+      }
+
+      .waitlist-wrap .section-sub {
+        font-size: 14px;
+        margin-bottom: 28px;
+      }
+
+      .form-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .form-row input {
+        min-width: unset;
+        width: 100%;
+        font-size: 16px;
+      }
+
+      .form-row .btn-primary {
+        max-width: unset;
+        width: 100%;
+        text-align: center;
+      }
+
+      .form-note {
+        font-size: 12px;
+      }
+
+      .scroll-hint {
+        bottom: 20px;
+        font-size: 10px;
+      }
+
+      .scroll-line {
+        height: 28px;
+      }
+
+      .scroll-glow {
+        width: 350px;
+        height: 350px;
+      }
+
+      .testimonial-wrap {
+        padding: 56px 16px;
+      }
+
+      .testimonial-card {
+        padding: 20px 20px;
+      }
+
+      .testimonial-quote {
+        font-size: 15px;
+      }
+
+      .testimonial-card::before {
+        font-size: 60px;
+        left: 16px;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+
+      .footer-brand {
+        grid-column: span 1;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+      }
+
+      footer {
+        padding: 40px 16px 32px;
+      }
+
+      .faq-section {
+        padding: 56px 16px;
+      }
+
+      .faq-question {
+        font-size: 15px;
+        padding: 18px 0;
+      }
+
+      .faq-answer-inner {
+        font-size: 14px;
+      }
+
+      .neural-svg {
+        width: 320px;
+        height: 220px;
+      }
+
+      .floating-cta {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 6. SCROLL GLOW -->
+  <div class="scroll-glow"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo"><img src="foxcode_mascot.png" alt="Foxcode"
+        class="nav-logo-icon" />Fox<span>code</span></a>
+  </nav>
+
+  <!-- HERO (with 1. Canvas Particles + 5. Neural SVG) -->
+  <div class="hero">
+    <canvas class="particles-canvas" id="particlesCanvas"></canvas>
+
+    <!-- 5. NEURAL NETWORK SVG -->
+    <svg class="neural-svg" viewBox="0 0 700 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Connections -->
+      <line x1="100" y1="150" x2="250" y2="100" />
+      <line x1="100" y1="150" x2="250" y2="250" />
+      <line x1="100" y1="350" x2="250" y2="250" />
+      <line x1="100" y1="350" x2="250" y2="400" />
+      <line x1="250" y1="100" x2="450" y2="150" />
+      <line x1="250" y1="100" x2="450" y2="300" />
+      <line x1="250" y1="250" x2="450" y2="150" />
+      <line x1="250" y1="250" x2="450" y2="300" />
+      <line x1="250" y1="400" x2="450" y2="300" />
+      <line x1="250" y1="400" x2="450" y2="400" />
+      <line x1="450" y1="150" x2="600" y2="250" />
+      <line x1="450" y1="300" x2="600" y2="250" />
+      <line x1="450" y1="400" x2="600" y2="250" />
+      <!-- Nodes -->
+      <circle cx="100" cy="150" r="5" />
+      <circle cx="100" cy="350" r="5" />
+      <circle cx="250" cy="100" r="6" />
+      <circle cx="250" cy="250" r="6" />
+      <circle cx="250" cy="400" r="6" />
+      <circle cx="450" cy="150" r="5" />
+      <circle cx="450" cy="300" r="5" />
+      <circle cx="450" cy="400" r="5" />
+      <circle cx="600" cy="250" r="7" />
+    </svg>
+
+    <h1>Think in<br /><em>Code.</em></h1>
+    <p class="hero-sub">Not another coding course. The first platform that actually understands how YOUR brain learns
+      and adapts to you.</p>
+    <div class="hero-cta">
+      <a href="#waitlist" class="btn-primary">Join the Waitlist →</a>
+      <a href="#how" class="btn-ghost">See how it works</a>
+    </div>
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      scroll
+    </div>
+  </div>
+
+
+
+  <!-- PROBLEM -->
+  <section id="problem">
+    <p class="section-label reveal">The problem</p>
+    <h2 class="reveal">You finished the course.<br />You still can't build anything.</h2>
+    <p class="section-sub reveal">That's not your fault. Every platform out there is broken in the same way.</p>
+    <!-- 2. BENTO GRID -->
+    <div class="cards-grid">
+      <div class="card reveal">
+        <span class="card-icon">📚</span>
+        <h3>You learn, but don't retain</h3>
+        <p>You finish lessons, do exercises, hit 100% and freeze when someone asks you to build something real. The
+          knowledge never sticks because nobody taught your brain the right way.</p>
+      </div>
+      <div class="card reveal">
+        <span class="card-icon">🤖</span>
+        <h3>One size fits all, except you</h3>
+        <p>Every platform teaches everyone the same way. But your brain works differently. Nobody accounts for that.</p>
+      </div>
+      <div class="card orange-border reveal">
+        <span class="card-icon">📄</span>
+        <h3>Certificates mean nothing</h3>
+        <p>You get a PDF that says "completed." Employers already know those mean nothing. You need actual proof.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIFFERENCE -->
+  <section id="diff" style="padding-top:0">
+    <p class="section-label reveal">The difference</p>
+    <h2 class="reveal">Old way vs. <em style="color:var(--orange)">Foxcode</em></h2>
+    <p class="section-sub reveal">We didn't build another coding course. We built something completely different.</p>
+    <!-- 8. STAGGERED DIFF -->
+    <div class="diff-grid reveal">
+      <div class="diff-col bad">
+        <h4>Every other platform</h4>
+        <div class="diff-item"><span class="icon">✗</span><span>Tells you right or wrong. Never tells you WHY your brain
+            failed.</span></div>
+        <div class="diff-item"><span class="icon">✗</span><span>Same content, same difficulty, same path for
+            everyone.</span></div>
+        <div class="diff-item"><span class="icon">✗</span><span>Certificate of attendance. Not proof of skill.</span>
+        </div>
+        <div class="diff-item"><span class="icon">✗</span><span>You grind and hope something sticks.</span></div>
+      </div>
+      <div class="diff-col good">
+        <h4>Foxcode</h4>
+        <div class="diff-item"><span class="icon">✓</span><span>Maps exactly how your brain thinks across 14 reasoning
+            dimensions.</span></div>
+        <div class="diff-item"><span class="icon">✓</span><span>Adapts to your level, your pace, your way of learning.
+            Only yours.</span></div>
+        <div class="diff-item"><span class="icon">✓</span><span>Verified skill cards any employer can check with one
+            click.</span></div>
+        <div class="diff-item"><span class="icon">✓</span><span>You always know exactly where you stand and what to fix
+            next.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. TESTIMONIAL -->
+  <div class="testimonial-wrap reveal">
+    <div class="testimonial-card">
+      <p class="testimonial-quote">I've tried everything. Codecademy, freeCodeCamp, boot camps. Foxcode is the first
+        thing that actually made me feel like I understand what I'm building, not just copying what I'm told.</p>
+      <p class="testimonial-author"><strong>Arjun M.</strong> · Beta tester, self-taught developer</p>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section id="how" style="padding-top:0">
+    <p class="section-label reveal">How it works</p>
+    <h2 class="reveal">Simple. Adaptive. <em style="color:var(--orange)">Yours.</em></h2>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <div>
+          <h3>We figure out how you think</h3>
+          <p>A 12-minute calibration shows Foxcode exactly where your brain is strong and where it quietly breaks down.
+            No judgment, just data.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <div>
+          <h3>It teaches you your way</h3>
+          <p>Every challenge, every lesson adapts to your exact level. Not too easy, not overwhelming. Always the right
+            next step, for you specifically.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <div>
+          <h3>You build real proof</h3>
+          <p>Every skill you demonstrate earns a verified card. Cryptographically signed. Any employer can check it
+            instantly. No more "trust me" certificates.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">04</div>
+        <div>
+          <h3>AI works for you, not against you</h3>
+          <p>AI only works well when the person using it actually knows how to think. That's literally what Foxcode
+            builds. The skill that makes AI 10x more powerful in your hands.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. FAQ ACCORDION -->
+  <div class="faq-section">
+    <p class="section-label reveal">Got questions?</p>
+    <h2 class="reveal">Frequently Asked</h2>
+
+    <div class="faq-item reveal">
+      <input type="checkbox" id="faq1" class="faq-toggle" />
+      <label for="faq1" class="faq-question">
+        How does Foxcode adapt to MY brain?
+        <span class="faq-chevron">▾</span>
+      </label>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">When you start, Foxcode runs a 12-minute calibration that maps your thinking
+          across 14 cognitive dimensions: pattern recognition, abstraction, debugging instinct, and more. Every
+          challenge after that is dynamically generated for your exact level. Not a fixed curriculum, a living one.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item reveal">
+      <input type="checkbox" id="faq2" class="faq-toggle" />
+      <label for="faq2" class="faq-question">
+        What are "verified skill cards"?
+        <span class="faq-chevron">▾</span>
+      </label>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Skill cards are cryptographically signed proof of what you can do. Each card is
+          tied to a specific skill you've demonstrated, not just a course you've watched. Any employer can verify it
+          instantly with a single link. No PDFs, no honor system.</div>
+      </div>
+    </div>
+
+    <div class="faq-item reveal">
+      <input type="checkbox" id="faq3" class="faq-toggle" />
+      <label for="faq3" class="faq-question">
+        Is Foxcode free?
+        <span class="faq-chevron">▾</span>
+      </label>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Foxcode will have a free tier with access to calibration and core learning paths.
+          Premium features like advanced skill cards, deeper analytics, and priority AI feedback will be available on a
+          paid plan. Pricing will be announced closer to launch.</div>
+      </div>
+    </div>
+
+    <div class="faq-item reveal">
+      <input type="checkbox" id="faq4" class="faq-toggle" />
+      <label for="faq4" class="faq-question">
+        How much time do I need per day?
+        <span class="faq-chevron">▾</span>
+      </label>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Foxcode is designed for focus, not grind. Most learners see meaningful progress
+          with 20 to 30 minutes per day. Because every minute is tailored to your weak spots, you learn more in less
+          time than any traditional course.</div>
+      </div>
+    </div>
+
+    <div class="faq-item reveal">
+      <input type="checkbox" id="faq5" class="faq-toggle" />
+      <label for="faq5" class="faq-question">
+        When does Foxcode launch?
+        <span class="faq-chevron">▾</span>
+      </label>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">We're targeting launch in 3 to 5 months. Join the waitlist to get early access and
+          be the first to try it. Beta testers are already using a preview version and shaping the product.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WAITLIST -->
+  <section id="waitlist">
+    <div class="waitlist-wrap reveal">
+      <p class="section-label" style="margin-bottom:20px">Be the first in</p>
+      <h2>Ready to actually<br />learn how to code?</h2>
+      <p class="section-sub">Drop your email. We'll message you the moment Foxcode goes live. No spam, just the launch.
+      </p>
+      <div class="form-row">
+        <input type="email" placeholder="your@email.com" />
+        <a href="https://tally.so/r/BzZGdR" target="_blank" class="btn-primary" style="white-space:nowrap">Get Early Access →</a>
+      </div>
+      <p class="form-note">🔒 No spam. No credit card. Just early access.</p>
+    </div>
+  </section>
+
+  <!-- 10. ENHANCED FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo"><img src="foxcode_mascot.png" alt="Foxcode"
+            class="nav-logo-icon" />Fox<span>code</span></a>
+        <p class="footer-tagline">Think in code. Prove you can. The first platform that maps how your brain learns and
+          adapts every step to you.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Links</h4>
+        <a href="#problem">The Problem</a>
+        <a href="#diff">The Difference</a>
+        <a href="#how">How It Works</a>
+        <a href="#waitlist">Join Waitlist</a>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <div class="footer-social">
+          <a href="https://www.instagram.com/chiruu.rose/" target="_blank" aria-label="Instagram" title="Instagram"><svg width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+            </svg></a>
+          <a href="mailto:charanpawarr09@gmail.com" aria-label="Gmail" title="Gmail"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none">
+              <rect x="2" y="4" width="20" height="16" rx="2" />
+              <polyline points="22,4 12,13 2,4" />
+            </svg></a>
+          <a href="https://github.com/charanpawarr09-sudo" target="_blank" aria-label="GitHub" title="GitHub"><svg width="18" height="18" viewBox="0 0 24 24"
+              fill="currentColor">
+              <path
+                d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+            </svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 <span>Foxcode</span>. Coming soon.</p>
+      <p>Built by someone who struggled the same way. 🦊</p>
+    </div>
+  </footer>
+
+  <!-- 7. FLOATING CTA (MOBILE) -->
+  <div class="floating-cta" id="floatingCta">
+    <a href="#waitlist" class="btn-primary">Join the Waitlist →</a>
+  </div>
+
+  <script>
+    // ═══ REVEAL ON SCROLL ═══
+    const reveals = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 80);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(r => revealObserver.observe(r));
+
+    // ═══ 6. SCROLL GLOW FOLLOW ═══
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          document.documentElement.style.setProperty('--scroll-y', window.scrollY + (window.innerHeight * 0.5) + 'px');
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+
+
+
+    // ═══ 7. FLOATING CTA VISIBILITY ═══
+    const hero = document.querySelector('.hero');
+    const floatingCta = document.getElementById('floatingCta');
+    if (hero && floatingCta) {
+      const floatObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) {
+            floatingCta.classList.add('show');
+          } else {
+            floatingCta.classList.remove('show');
+          }
+        });
+      }, { threshold: 0 });
+      floatObserver.observe(hero);
+    }
+
+    // ═══ 1. CANVAS PARTICLES ═══
+    (function () {
+      const canvas = document.getElementById('particlesCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      let animId;
+      let isVisible = true;
+
+      function resize() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      }
+
+      function createParticles() {
+        particles = [];
+        const count = window.innerWidth < 600 ? 6 : 10;
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 2.5 + 1,
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: (Math.random() - 0.5) * 0.2,
+            alpha: Math.random() * 0.4 + 0.1
+          });
+        }
+      }
+
+      function draw() {
+        if (!isVisible) { animId = requestAnimationFrame(draw); return; }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0) p.x = canvas.width;
+          if (p.x > canvas.width) p.x = 0;
+          if (p.y < 0) p.y = canvas.height;
+          if (p.y > canvas.height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 107, 26, ${p.alpha})`;
+          ctx.shadowColor = 'rgba(255, 107, 26, 0.3)';
+          ctx.shadowBlur = 20;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        });
+
+        // Draw faint connections
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 200) {
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.strokeStyle = `rgba(255, 107, 26, ${0.06 * (1 - dist / 200)})`;
+              ctx.lineWidth = 0.5;
+              ctx.stroke();
+            }
+          }
+        }
+
+        animId = requestAnimationFrame(draw);
+      }
+
+      // Pause when not visible
+      const visObserver = new IntersectionObserver((entries) => {
+        isVisible = entries[0].isIntersecting;
+      }, { threshold: 0 });
+      visObserver.observe(canvas);
+
+      resize();
+      createParticles();
+      draw();
+      window.addEventListener('resize', () => { resize(); createParticles(); });
+    })();
+  </script>
+</body>
+
+</html>
